@@ -10,21 +10,50 @@ Create a file **default.json** under **config** folder with the following values
     "appSecret": "",
     "pageAccessToken": "",
     "validationToken": "",
-    "serverURL": ""
+    "serverURL": "",
+    "logAPI": false
 }
 ```
 
 ## Usage ##
 
-### Get User Profile ##
+### Get User Profile - [User Profile API](https://developers.facebook.com/docs/messenger-platform/user-profile) ##
 ```javascript
 var messengerapi = require('node-facebook-messenger-api').messenger();
-var messenger = new messenger.Messenger();
-messenger.getUserProfile(recipientId, (err, resp) => {
+var messenger = new messengerapi.Messenger();
+
+var pageScopeUserID = "...";
+
+messenger.getUserProfile(pageScopeUserID, (err, resp) => {
     if (err) {
         console.error(recipientId, "Sorry, looks like the backend is down :-(");
     } else {
         console.log(JSON.parse(resp));
     }
 });
+```
+
+### Send Generic Template Message - [Generic Template](https://developers.facebook.com/docs/messenger-platform/send-api-reference/generic-template) ###
+```javascript
+messenger.sendGenericMessage(pageScopeUserID, [{
+    title: "Welcome to Peter\'s Hats",
+    image_url: "https://petersfancybrownhats.com/company_image.png",
+    subtitle: "We\'ve got the right hat for everyone.",
+    default_action: {
+        type: "web_url",
+        url: "https://peterssendreceiveapp.ngrok.io/view?item=103",
+        messenger_extensions: true,
+        webview_height_ratio: "tall",
+        fallback_url: "https://peterssendreceiveapp.ngrok.io/"
+    },
+    buttons: [{
+        type: "web_url",
+        url: "https://petersfancybrownhats.com",
+        title: "View Website"
+    }, {
+        type: "postback",
+        title: "Start Chatting",
+        payload: "DEVELOPER_DEFINED_PAYLOAD"
+    }]
+}]);
 ```
