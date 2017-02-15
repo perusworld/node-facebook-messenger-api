@@ -2,6 +2,12 @@
 
 Based on the [Messenger Platform Sample](https://github.com/fbsamples/messenger-platform-samples)
 
+## Install ##
+```bash
+npm install github:perusworld/node-facebook-messenger-api --save
+```
+
+
 ## Setup ##
 
 Create a file **default.json** under **config** folder with the following values filled according to your fb messenger/page. See [Setup](https://developers.facebook.com/docs/messenger-platform/guides/setup) for more details.
