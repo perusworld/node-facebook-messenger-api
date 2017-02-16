@@ -99,6 +99,26 @@ Messenger.prototype.getUserProfile = function (userId, callback) {
     });
 };
 
+Messenger.prototype.getAccountLinkingEndpoint = function (token, callback) {
+    var ptr = this;
+    request({
+        uri: this.conf.urlPrefix + "me",
+        qs: {
+            access_token: this.conf.pageAccessToken,
+            fields: 'recipient',
+            account_linking_token: token
+        },
+        method: 'GET'
+    }, function (error, response, body) {
+        if (!error && response.statusCode == 200) {
+            callback(null, body)
+        } else {
+            ptr.error("Failed calling Send API", response.statusCode, response.statusMessage, body.error);
+            callback(error, null);
+        }
+    });
+};
+
 Messenger.prototype.setThreadSettings = function (messageData, callback) {
     var ptr = this;
     request({
