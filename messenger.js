@@ -413,23 +413,13 @@ Messenger.prototype.sendTypingOff = function (recipientId) {
     this.callSendAPI(messageData);
 };
 
-Messenger.prototype.sendAccountLinking = function (recipientId) {
+Messenger.prototype.sendAccountLinking = function (recipientId, attachment) {
     var messageData = {
         recipient: {
             id: recipientId
         },
         message: {
-            attachment: {
-                type: "template",
-                payload: {
-                    template_type: "button",
-                    text: "Welcome. Link your account.",
-                    buttons: [{
-                        type: "account_link",
-                        url: this.conf.serverURL + "/authorize"
-                    }]
-                }
-            }
+            attachment: attachment
         }
     };
 
