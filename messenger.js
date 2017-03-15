@@ -322,6 +322,22 @@ Messenger.prototype.sendGenericMessage = function (recipientId, elems) {
     this.callSendAPI(messageData);
 };
 
+Messenger.prototype.sendTemplate = function (recipientId, payload) {
+    var messageData = {
+        recipient: {
+            id: recipientId
+        },
+        message: {
+            attachment: {
+                type: "template",
+                payload: payload
+            }
+        }
+    };
+
+    this.callSendAPI(messageData);
+};
+
 Messenger.prototype.sendReceiptMessage = function (recipientId) {
     var receiptId = "order" + Math.floor(Math.random() * 1000);
 
