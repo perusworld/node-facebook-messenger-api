@@ -2,6 +2,5 @@
     "appSecret": "",
     "pageAccessToken": "",
     "validationToken": "",
-    "serverURL": "",
     "logAPI": false
 }

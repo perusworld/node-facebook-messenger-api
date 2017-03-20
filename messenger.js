@@ -2,6 +2,7 @@
 
 const
     config = require('config'),
+    crypto = require('crypto'),
     request = require('request');
 
 function Messenger() {
@@ -17,10 +18,6 @@ function Messenger() {
         (process.env.MESSENGER_PAGE_ACCESS_TOKEN) :
         config.get('pageAccessToken');
 
-    const serverURL = (process.env.SERVER_URL) ?
-        (process.env.SERVER_URL) :
-        config.get('serverURL');
-
     const logApi = (process.env.LOG_API) ?
         (process.env.LOG_API) :
         config.get('logAPI');
@@ -35,7 +32,6 @@ function Messenger() {
         appSecret: appSecret,
         validationToken: validationToken,
         pageAccessToken: pageAccessToken,
-        serverURL: serverURL,
         urlPrefix: 'https://graph.facebook.com/v2.6/'
     };
 }
@@ -50,6 +46,24 @@ Messenger.prototype.error = function () {
     if (this.conf.log) {
         console.error(arguments);
     }
+};
+
+Messenger.prototype.matchToken = function (token) {
+    return this.conf.validationToken == token;
+};
+
+Messenger.prototype.verifySignature = function(signature) {
+    var ret = false;
+    if (signature) {
+        var elements = signature.split('=');
+        var method = elements[0];
+        var signatureHash = elements[1];
+        var expectedHash = crypto.createHmac('sha1', messenger.conf.appSecret)
+            .update(buf)
+            .digest('hex');
+        ret =  (signatureHash == expectedHash);
+    }
+    return ret;
 };
 
 Messenger.prototype.callSendAPI = function (messageData) {
@@ -183,7 +197,7 @@ Messenger.prototype.clearThreadSettings = function (callback) {
     });
 };
 
-Messenger.prototype.sendImageMessage = function (recipientId) {
+Messenger.prototype.sendImageMessage = function (recipientId, payload) {
     var messageData = {
         recipient: {
             id: recipientId
@@ -191,9 +205,7 @@ Messenger.prototype.sendImageMessage = function (recipientId) {
         message: {
             attachment: {
                 type: "image",
-                payload: {
-                    url: this.conf.serverURL + "/assets/rift.png"
-                }
+                payload: payload
             }
         }
     };
@@ -201,7 +213,7 @@ Messenger.prototype.sendImageMessage = function (recipientId) {
     callSendAPI(messageData);
 };
 
-Messenger.prototype.sendGifMessage = function (recipientId) {
+Messenger.prototype.sendGifMessage = function (recipientId, payload) {
     var messageData = {
         recipient: {
             id: recipientId
@@ -209,9 +221,7 @@ Messenger.prototype.sendGifMessage = function (recipientId) {
         message: {
             attachment: {
                 type: "image",
-                payload: {
-                    url: this.conf.serverURL + "/assets/instagram_logo.gif"
-                }
+                payload: payload
             }
         }
     };
@@ -219,7 +229,7 @@ Messenger.prototype.sendGifMessage = function (recipientId) {
     this.callSendAPI(messageData);
 };
 
-Messenger.prototype.sendAudioMessage = function (recipientId) {
+Messenger.prototype.sendAudioMessage = function (recipientId, payload) {
     var messageData = {
         recipient: {
             id: recipientId
@@ -227,9 +237,7 @@ Messenger.prototype.sendAudioMessage = function (recipientId) {
         message: {
             attachment: {
                 type: "audio",
-                payload: {
-                    url: this.conf.serverURL + "/assets/sample.mp3"
-                }
+                payload: payload
             }
         }
     };
@@ -237,7 +245,7 @@ Messenger.prototype.sendAudioMessage = function (recipientId) {
     this.callSendAPI(messageData);
 };
 
-Messenger.prototype.sendVideoMessage = function (recipientId) {
+Messenger.prototype.sendVideoMessage = function (recipientId, payload) {
     var messageData = {
         recipient: {
             id: recipientId
@@ -245,9 +253,7 @@ Messenger.prototype.sendVideoMessage = function (recipientId) {
         message: {
             attachment: {
                 type: "video",
-                payload: {
-                    url: this.conf.serverURL + "/assets/allofus480.mov"
-                }
+                payload: payload
             }
         }
     };
@@ -255,7 +261,7 @@ Messenger.prototype.sendVideoMessage = function (recipientId) {
     this.callSendAPI(messageData);
 };
 
-Messenger.prototype.sendFileMessage = function (recipientId) {
+Messenger.prototype.sendFileMessage = function (recipientId, payload) {
     var messageData = {
         recipient: {
             id: recipientId
@@ -263,9 +269,7 @@ Messenger.prototype.sendFileMessage = function (recipientId) {
         message: {
             attachment: {
                 type: "file",
-                payload: {
-                    url: this.conf.serverURL + "/assets/test.txt"
-                }
+                payload: payload
             }
         }
     };
@@ -273,15 +277,18 @@ Messenger.prototype.sendFileMessage = function (recipientId) {
     this.callSendAPI(messageData);
 };
 
-Messenger.prototype.sendTextMessage = function (recipientId, messageText) {
+Messenger.prototype.sendTextMessage = function (recipientId, messageText, metadata) {
+    var msg = {
+        text: messageText
+    };
+    if (metadata) {
+        msg.metadata = metadata;
+    }
     var messageData = {
         recipient: {
             id: recipientId
         },
-        message: {
-            text: messageText,
-            metadata: "DEVELOPER_DEFINED_METADATA"
-        }
+        message: msg
     };
 
     this.callSendAPI(messageData);
@@ -338,66 +345,6 @@ Messenger.prototype.sendTemplate = function (recipientId, payload) {
     this.callSendAPI(messageData);
 };
 
-Messenger.prototype.sendReceiptMessage = function (recipientId) {
-    var receiptId = "order" + Math.floor(Math.random() * 1000);
-
-    var messageData = {
-        recipient: {
-            id: recipientId
-        },
-        message: {
-            attachment: {
-                type: "template",
-                payload: {
-                    template_type: "receipt",
-                    recipient_name: "Peter Chang",
-                    order_number: receiptId,
-                    currency: "USD",
-                    payment_method: "Visa 1234",
-                    timestamp: "1428444852",
-                    elements: [{
-                        title: "Oculus Rift",
-                        subtitle: "Includes: headset, sensor, remote",
-                        quantity: 1,
-                        price: 599.00,
-                        currency: "USD",
-                        image_url: this.conf.serverURL + "/assets/riftsq.png"
-                    }, {
-                        title: "Samsung Gear VR",
-                        subtitle: "Frost White",
-                        quantity: 1,
-                        price: 99.99,
-                        currency: "USD",
-                        image_url: this.conf.serverURL + "/assets/gearvrsq.png"
-                    }],
-                    address: {
-                        street_1: "1 Hacker Way",
-                        street_2: "",
-                        city: "Menlo Park",
-                        postal_code: "94025",
-                        state: "CA",
-                        country: "US"
-                    },
-                    summary: {
-                        subtotal: 698.99,
-                        shipping_cost: 20.00,
-                        total_tax: 57.67,
-                        total_cost: 626.66
-                    },
-                    adjustments: [{
-                        name: "New Customer Discount",
-                        amount: -50
-                    }, {
-                        name: "$100 Off Coupon",
-                        amount: -100
-                    }]
-                }
-            }
-        }
-    };
-
-    this.callSendAPI(messageData);
-};
 
 Messenger.prototype.sendQuickReply = function (recipientId, msg) {
     var messageData = {
