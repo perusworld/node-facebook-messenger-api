@@ -58,7 +58,7 @@ Messenger.prototype.verifySignature = function(signature) {
         var elements = signature.split('=');
         var method = elements[0];
         var signatureHash = elements[1];
-        var expectedHash = crypto.createHmac('sha1', messenger.conf.appSecret)
+        var expectedHash = crypto.createHmac('sha1', this.conf.appSecret)
             .update(buf)
             .digest('hex');
         ret =  (signatureHash == expectedHash);
