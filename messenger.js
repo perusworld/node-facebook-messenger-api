@@ -52,7 +52,7 @@ Messenger.prototype.matchToken = function (token) {
     return this.conf.validationToken === token;
 };
 
-Messenger.prototype.verifySignature = function(signature) {
+Messenger.prototype.verifySignature = function (signature, buf) {
     var ret = false;
     if (signature) {
         var elements = signature.split('=');
@@ -61,7 +61,7 @@ Messenger.prototype.verifySignature = function(signature) {
         var expectedHash = crypto.createHmac('sha1', this.conf.appSecret)
             .update(buf)
             .digest('hex');
-        ret =  (signatureHash == expectedHash);
+        ret = (signatureHash == expectedHash);
     }
     return ret;
 };
