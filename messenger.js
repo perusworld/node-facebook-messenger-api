@@ -49,7 +49,7 @@ Messenger.prototype.error = function () {
 };
 
 Messenger.prototype.matchToken = function (token) {
-    return this.conf.validationToken == token;
+    return this.conf.validationToken === token;
 };
 
 Messenger.prototype.verifySignature = function(signature) {
