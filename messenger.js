@@ -22,7 +22,7 @@ function Messenger() {
         (process.env.LOG_API) :
         config.get('logAPI');
 
-    if (!(appSecret && validationToken && pageAccessToken && serverURL)) {
+    if (!(appSecret && validationToken && pageAccessToken)) {
         console.error("Missing config values");
         process.exit(1);
     }
