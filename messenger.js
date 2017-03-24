@@ -412,4 +412,35 @@ Messenger.prototype.sendAccountLinking = function (recipientId, payload) {
     this.callSendAPI(messageData);
 };
 
+Messenger.prototype.nextBuilder = function (idx, target) {
+    return {
+        title: "More",
+        buttons: [{
+            type: "postback",
+            title: "More",
+            payload: [target, idx].join(":")
+        }]
+    }
+};
+
+Messenger.prototype.buildElements = function (arr, from, builder, nextTarget, nextBuilder) {
+    var ptr = this;
+    var ret = [];
+    if(!nextBuilder) {
+        nextBuilder = this.nextBuilder;
+    }
+    arr.forEach((entry, idx) => {
+        if (idx >= from) {
+            if (idx < (from + ptr.conf.listMax - 1)) {
+                ret.push(builder(entry));
+            } else if (arr.length == (from + ptr.conf.listMax)) {
+                ret.push(builder(entry));
+            } else if (from + ptr.conf.listMax - 1 == idx) {
+                ret.push(ptr.nextBuilder(idx, nextTarget));
+            }
+        }
+    });
+    return ret;
+};
+
 module.exports.Messenger = Messenger;
