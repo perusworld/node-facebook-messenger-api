@@ -426,7 +426,7 @@ Messenger.prototype.nextBuilder = function (idx, target) {
 Messenger.prototype.buildElements = function (arr, from, builder, nextTarget, nextBuilder) {
     var ptr = this;
     var ret = [];
-    if(!nextBuilder) {
+    if (!nextBuilder) {
         nextBuilder = this.nextBuilder;
     }
     arr.forEach((entry, idx) => {
@@ -440,6 +440,30 @@ Messenger.prototype.buildElements = function (arr, from, builder, nextTarget, ne
             }
         }
     });
+    return ret;
+};
+
+Messenger.prototype.buildPostback = function (target, request) {
+    var ret = [target];
+    for (var key in request) {
+        if (request.hasOwnProperty(key) && !(typeof request[key] === 'function')) {
+            ret.push(key);
+            ret.push(request[key]);
+        }
+    }
+    return ret.join(":");
+};
+
+Messenger.prototype.parsePostback = function (payload) {
+    var ret = {};
+    var entries = payload.split(":");
+    if (0 < entries.length) {
+        ret.target = entries[0];
+        entries = entries.slice(1);
+        for (var idx = 0; idx < entries.length; idx += 2) {
+            ret[entries[idx]] = entries[idx + 1];
+        }
+    }
     return ret;
 };
 
