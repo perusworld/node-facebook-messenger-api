@@ -408,7 +408,6 @@ Messenger.prototype.sendAccountLinking = function (recipientId, payload) {
             }
         }
     };
-
     this.callSendAPI(messageData);
 };
 
@@ -418,25 +417,28 @@ Messenger.prototype.nextBuilder = function (idx, target) {
         buttons: [{
             type: "postback",
             title: "More",
-            payload: [target, idx].join(":")
+            payload: this.buildPostback(target, {
+                next: idx
+            })
         }]
     }
 };
 
-Messenger.prototype.buildElements = function (arr, from, builder, nextTarget, nextBuilder) {
+Messenger.prototype.buildElements = function (arr, from, listMax, builder, nextTarget, nextBuilder) {
     var ptr = this;
     var ret = [];
     if (!nextBuilder) {
-        nextBuilder = this.nextBuilder;
+        nextBuilder = this.nextBuilder.bind(this);
     }
+    var fromIdx = typeof from == 'number' ? from: from.next ? Number.parseInt(from.next) : 0;
     arr.forEach((entry, idx) => {
-        if (idx >= from) {
-            if (idx < (from + ptr.conf.listMax - 1)) {
-                ret.push(builder(entry));
-            } else if (arr.length == (from + ptr.conf.listMax)) {
-                ret.push(builder(entry));
-            } else if (from + ptr.conf.listMax - 1 == idx) {
-                ret.push(ptr.nextBuilder(idx, nextTarget));
+        if (idx >= fromIdx) {
+            if (idx < (fromIdx + listMax - 1)) {
+                ret.push(builder ? builder(entry) : entry);
+            } else if (arr.length == (fromIdx + listMax)) {
+                ret.push(builder ? builder(entry) : entry);
+            } else if (fromIdx + listMax - 1 == idx) {
+                ret.push(nextBuilder(idx, nextTarget));
             }
         }
     });
