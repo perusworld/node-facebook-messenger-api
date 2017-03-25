@@ -411,26 +411,26 @@ Messenger.prototype.sendAccountLinking = function (recipientId, payload) {
     this.callSendAPI(messageData);
 };
 
-Messenger.prototype.nextBuilder = function (idx, target) {
+Messenger.prototype.nextBuilder = function (idx, target, opts) {
+    var props = opts ? opts : {};
+    props.next = idx;
     return {
         title: "More",
         buttons: [{
             type: "postback",
             title: "More",
-            payload: this.buildPostback(target, {
-                next: idx
-            })
+            payload: this.buildPostback(target, props)
         }]
     }
 };
 
-Messenger.prototype.buildElements = function (arr, from, listMax, builder, nextTarget, nextBuilder) {
+Messenger.prototype.buildElements = function (arr, from, listMax, builder, nextTarget, nextProps, nextBuilder) {
     var ptr = this;
     var ret = [];
     if (!nextBuilder) {
         nextBuilder = this.nextBuilder.bind(this);
     }
-    var fromIdx = typeof from == 'number' ? from: from.next ? Number.parseInt(from.next) : 0;
+    var fromIdx = typeof from == 'number' ? from : from.next ? Number.parseInt(from.next) : 0;
     arr.forEach((entry, idx) => {
         if (idx >= fromIdx) {
             if (idx < (fromIdx + listMax - 1)) {
@@ -438,7 +438,7 @@ Messenger.prototype.buildElements = function (arr, from, listMax, builder, nextT
             } else if (arr.length == (fromIdx + listMax)) {
                 ret.push(builder ? builder(entry) : entry);
             } else if (fromIdx + listMax - 1 == idx) {
-                ret.push(nextBuilder(idx, nextTarget));
+                ret.push(nextBuilder(idx, nextTarget, nextProps));
             }
         }
     });
