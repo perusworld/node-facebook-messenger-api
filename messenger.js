@@ -152,6 +152,68 @@ Messenger.prototype.setThreadSettings = function (messageData, callback) {
     });
 };
 
+Messenger.prototype.setMessengerProfile = function (profileData, callback) {
+    var ptr = this;
+    request({
+        uri: this.conf.urlPrefix + "me/messenger_profile",
+        qs: {
+            access_token: this.conf.pageAccessToken
+        },
+        method: 'POST',
+        json: profileData
+    }, function (error, response, body) {
+        if (!error && response.statusCode == 200) {
+            callback(null, body)
+        } else {
+            ptr.error("Failed calling Send API", response.statusCode, response.statusMessage, body.error);
+            callback(error, null);
+        }
+    });
+};
+
+Messenger.prototype.removeMessengerProfile = function (fields, callback) {
+    var ptr = this;
+    request({
+        uri: this.conf.urlPrefix + "me/messenger_profile",
+        qs: {
+            access_token: this.conf.pageAccessToken
+        },
+        method: 'DELETE',
+        json: {
+            fields: fields
+        }
+    }, function (error, response, body) {
+        if (!error && response.statusCode == 200) {
+            callback(null, body)
+        } else {
+            ptr.error("Failed calling Send API", response.statusCode, response.statusMessage, body.error);
+            callback(error, null);
+        }
+    });
+};
+
+Messenger.prototype.setGetStarted = function (payload, callback) {
+    this.setMessengerProfile({
+        get_started: {
+            payload: payload
+        }
+    }, callback);
+};
+
+Messenger.prototype.removeGetStarted = function (callback) {
+    this.removeMessengerProfile(['get_started'], callback);
+};
+
+Messenger.prototype.setGreetingText = function (greetings, callback) {
+    this.setMessengerProfile({
+        greeting: greetings
+    }, callback);
+};
+
+Messenger.prototype.removeGreetingText = function (callback) {
+    this.removeMessengerProfile(['greeting'], callback);
+};
+
 Messenger.prototype.whitelistDomain = function (domain, add, callback) {
     var ptr = this;
     request({

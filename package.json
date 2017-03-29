@@ -1,6 +1,6 @@
 {
   "name": "node-facebook-messenger-api",
-  "version": "1.0.9",
+  "version": "1.1.0",
   "description": "Simple Node.js Facebook Messenger API",
   "main": "node-facebook-messenger-api.js",
   "scripts": {
