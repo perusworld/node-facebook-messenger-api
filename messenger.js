@@ -66,7 +66,7 @@ Messenger.prototype.verifySignature = function (signature, buf) {
     return ret;
 };
 
-Messenger.prototype.callSendAPI = function (messageData) {
+Messenger.prototype.callSendAPI = function (messageData, callback) {
     var ptr = this;
     request({
         uri: this.conf.urlPrefix + 'me/messages',
@@ -88,8 +88,14 @@ Messenger.prototype.callSendAPI = function (messageData) {
                 ptr.log("Successfully called Send API for recipient %s",
                     recipientId);
             }
+            if (callback) {
+                callback(null, body)
+            }
         } else {
             ptr.error("Failed calling Send API", response.statusCode, response.statusMessage, body.error);
+            if (callback) {
+                callback(body, null)
+            }
         }
     });
 };
@@ -275,7 +281,7 @@ Messenger.prototype.sendImageMessage = function (recipientId, payload) {
     callSendAPI(messageData);
 };
 
-Messenger.prototype.sendGifMessage = function (recipientId, payload) {
+Messenger.prototype.sendGifMessage = function (recipientId, payload, callback) {
     var messageData = {
         recipient: {
             id: recipientId
@@ -288,10 +294,10 @@ Messenger.prototype.sendGifMessage = function (recipientId, payload) {
         }
     };
 
-    this.callSendAPI(messageData);
+    this.callSendAPI(messageData, callback);
 };
 
-Messenger.prototype.sendAudioMessage = function (recipientId, payload) {
+Messenger.prototype.sendAudioMessage = function (recipientId, payload, callback) {
     var messageData = {
         recipient: {
             id: recipientId
@@ -304,10 +310,10 @@ Messenger.prototype.sendAudioMessage = function (recipientId, payload) {
         }
     };
 
-    this.callSendAPI(messageData);
+    this.callSendAPI(messageData, callback);
 };
 
-Messenger.prototype.sendVideoMessage = function (recipientId, payload) {
+Messenger.prototype.sendVideoMessage = function (recipientId, payload, callback) {
     var messageData = {
         recipient: {
             id: recipientId
@@ -320,10 +326,10 @@ Messenger.prototype.sendVideoMessage = function (recipientId, payload) {
         }
     };
 
-    this.callSendAPI(messageData);
+    this.callSendAPI(messageData, callback);
 };
 
-Messenger.prototype.sendFileMessage = function (recipientId, payload) {
+Messenger.prototype.sendFileMessage = function (recipientId, payload, callback) {
     var messageData = {
         recipient: {
             id: recipientId
@@ -336,10 +342,10 @@ Messenger.prototype.sendFileMessage = function (recipientId, payload) {
         }
     };
 
-    this.callSendAPI(messageData);
+    this.callSendAPI(messageData, callback);
 };
 
-Messenger.prototype.sendTextMessage = function (recipientId, messageText, metadata) {
+Messenger.prototype.sendTextMessage = function (recipientId, messageText, metadata, callback) {
     var msg = {
         text: messageText
     };
@@ -353,10 +359,10 @@ Messenger.prototype.sendTextMessage = function (recipientId, messageText, metada
         message: msg
     };
 
-    this.callSendAPI(messageData);
+    this.callSendAPI(messageData, callback);
 };
 
-Messenger.prototype.sendButtonMessage = function (recipientId, payload) {
+Messenger.prototype.sendButtonMessage = function (recipientId, payload, callback) {
     var messageData = {
         recipient: {
             id: recipientId
@@ -369,10 +375,10 @@ Messenger.prototype.sendButtonMessage = function (recipientId, payload) {
         }
     };
 
-    this.callSendAPI(messageData);
+    this.callSendAPI(messageData, callback);
 };
 
-Messenger.prototype.sendGenericMessage = function (recipientId, elems) {
+Messenger.prototype.sendGenericMessage = function (recipientId, elems, callback) {
     var messageData = {
         recipient: {
             id: recipientId
@@ -388,10 +394,10 @@ Messenger.prototype.sendGenericMessage = function (recipientId, elems) {
         }
     };
 
-    this.callSendAPI(messageData);
+    this.callSendAPI(messageData, callback);
 };
 
-Messenger.prototype.sendTemplate = function (recipientId, payload) {
+Messenger.prototype.sendTemplate = function (recipientId, payload, callback) {
     var messageData = {
         recipient: {
             id: recipientId
@@ -404,11 +410,11 @@ Messenger.prototype.sendTemplate = function (recipientId, payload) {
         }
     };
 
-    this.callSendAPI(messageData);
+    this.callSendAPI(messageData, callback);
 };
 
 
-Messenger.prototype.sendQuickReply = function (recipientId, msg) {
+Messenger.prototype.sendQuickReply = function (recipientId, msg, callback) {
     var messageData = {
         recipient: {
             id: recipientId
@@ -416,10 +422,10 @@ Messenger.prototype.sendQuickReply = function (recipientId, msg) {
         message: msg
     };
 
-    this.callSendAPI(messageData);
+    this.callSendAPI(messageData, callback);
 };
 
-Messenger.prototype.sendReadReceipt = function (recipientId) {
+Messenger.prototype.sendReadReceipt = function (recipientId, callback) {
     console.log("Sending a read receipt to mark message as seen");
 
     var messageData = {
@@ -429,10 +435,10 @@ Messenger.prototype.sendReadReceipt = function (recipientId) {
         sender_action: "mark_seen"
     };
 
-    this.callSendAPI(messageData);
+    this.callSendAPI(messageData, callback);
 };
 
-Messenger.prototype.sendTypingOn = function (recipientId) {
+Messenger.prototype.sendTypingOn = function (recipientId, callback) {
     console.log("Turning typing indicator on");
 
     var messageData = {
@@ -442,10 +448,10 @@ Messenger.prototype.sendTypingOn = function (recipientId) {
         sender_action: "typing_on"
     };
 
-    this.callSendAPI(messageData);
+    this.callSendAPI(messageData, callback);
 };
 
-Messenger.prototype.sendTypingOff = function (recipientId) {
+Messenger.prototype.sendTypingOff = function (recipientId, callback) {
     console.log("Turning typing indicator off");
 
     var messageData = {
@@ -455,10 +461,10 @@ Messenger.prototype.sendTypingOff = function (recipientId) {
         sender_action: "typing_off"
     };
 
-    this.callSendAPI(messageData);
+    this.callSendAPI(messageData, callback);
 };
 
-Messenger.prototype.sendAccountLinking = function (recipientId, payload) {
+Messenger.prototype.sendAccountLinking = function (recipientId, payload, callback) {
     var messageData = {
         recipient: {
             id: recipientId
@@ -470,7 +476,7 @@ Messenger.prototype.sendAccountLinking = function (recipientId, payload) {
             }
         }
     };
-    this.callSendAPI(messageData);
+    this.callSendAPI(messageData, callback);
 };
 
 Messenger.prototype.nextBuilder = function (idx, target, opts) {
