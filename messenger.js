@@ -111,7 +111,7 @@ Messenger.prototype.getUserProfile = function (userId, callback) {
         method: 'GET'
     }, function (error, response, body) {
         if (!error && response.statusCode == 200) {
-            callback(null, body)
+            callback(null, JSON.parse(body))
         } else {
             ptr.error("Failed calling Send API", response.statusCode, response.statusMessage, body.error);
             callback(error, null);
