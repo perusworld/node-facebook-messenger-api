@@ -413,6 +413,25 @@ Messenger.prototype.sendTemplate = function (recipientId, payload, callback) {
     this.callSendAPI(messageData, callback);
 };
 
+Messenger.prototype.sendCompactList = function (recipientId, elems, moreButtons, callback) {
+    var payload;
+    if (1 == elems.length) {
+        payload = {
+            template_type: "generic",
+            elements: elems
+        };
+    } else if (1 < elems.length) {
+        payload = {
+            template_type: "list",
+            top_element_style: "compact",
+            elements: elems
+        };
+        if (moreButtons) {
+            payload.buttons = moreButtons
+        }
+    }
+    this.sendTemplate(recipientId, payload, callback);
+};
 
 Messenger.prototype.sendQuickReply = function (recipientId, msg, callback) {
     var messageData = {
@@ -510,7 +529,7 @@ Messenger.prototype.nextBuilder = function (idx, target, opts, nextImg) {
     return ret;
 };
 
-Messenger.prototype.buildElements = function (opts) {
+Messenger.prototype.buildEntries = function (opts, lastOffset) {
     var ptr = this;
     var ret = [];
     var nextBuilder = opts.nextBuilder;
@@ -520,16 +539,24 @@ Messenger.prototype.buildElements = function (opts) {
     var fromIdx = typeof opts.from == 'number' ? opts.from : opts.from.next ? Number.parseInt(opts.from.next) : 0;
     opts.arr.forEach((entry, idx) => {
         if (idx >= fromIdx) {
-            if (idx < (fromIdx + opts.listMax - 1)) {
+            if (opts.arr.length == (fromIdx + opts.listMax)) {
                 ret.push(opts.builder ? opts.builder(entry) : entry);
-            } else if (opts.arr.length == (fromIdx + opts.listMax)) {
+            } else if (idx < (fromIdx + opts.listMax + lastOffset)) {
                 ret.push(opts.builder ? opts.builder(entry) : entry);
-            } else if (fromIdx + opts.listMax - 1 == idx) {
+            } else if (fromIdx + opts.listMax + lastOffset == idx) {
                 ret.push(nextBuilder(idx, opts.nextTarget, opts.nextProps, opts.nextImg));
             }
         }
     });
     return ret;
+};
+
+Messenger.prototype.buildElements = function (opts) {
+    return this.buildEntries(opts, -1);
+};
+
+Messenger.prototype.buildListElements = function (opts) {
+    return this.buildEntries(opts, 0);
 };
 
 Messenger.prototype.buildPostback = function (target, request) {
