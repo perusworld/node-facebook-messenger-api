@@ -479,6 +479,20 @@ Messenger.prototype.sendAccountLinking = function (recipientId, payload, callbac
     this.callSendAPI(messageData, callback);
 };
 
+Messenger.prototype.nextReplyBuilder = function (idx, target, opts, nextImg) {
+    var props = opts ? opts : {};
+    props.next = idx;
+    var ret = {
+        content_type: "text",
+        title: "More",
+        payload: this.buildPostback(target, props)
+    };
+    if (nextImg) {
+        ret.image_url = nextImg;
+    }
+    return ret;
+};
+
 Messenger.prototype.nextBuilder = function (idx, target, opts, nextImg) {
     var props = opts ? opts : {};
     props.next = idx;
