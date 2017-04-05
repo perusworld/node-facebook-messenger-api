@@ -2,5 +2,6 @@
     "appSecret": "",
     "pageAccessToken": "",
     "validationToken": "",
+    "nextImageUrl": "",
     "logAPI": false
 }
