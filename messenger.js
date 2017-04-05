@@ -92,9 +92,17 @@ Messenger.prototype.callSendAPI = function (messageData, callback) {
                 callback(null, body)
             }
         } else {
-            ptr.error("Failed calling Send API", response.statusCode, response.statusMessage, body.error);
+            var args = ["Failed calling Send API"];
+            if (error) {
+                args.push(error);
+            }
+            if (response) {
+                args.push(response.statusCode);
+                args.push(response.statusMessage);
+            }
+            ptr.error.apply(ptr, args);
             if (callback) {
-                callback(body, null)
+                callback(error, null)
             }
         }
     });
