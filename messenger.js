@@ -424,6 +424,17 @@ Messenger.prototype.sendTemplate = function (recipientId, payload, callback) {
     this.callSendAPI(messageData, callback);
 };
 
+Messenger.prototype.addButton = function (element, btns) {
+    if (btns && 1 == btns.length) {
+        if (!element.buttons) {
+            element.buttons = [];
+        }
+        if (3 > element.buttons.length) {
+            element.buttons.push(btns[0])
+        }
+    }
+};
+
 Messenger.prototype.sendCompactList = function (recipientId, elems, moreButtons, callback) {
     var payload;
     if (1 == elems.length) {
@@ -431,6 +442,7 @@ Messenger.prototype.sendCompactList = function (recipientId, elems, moreButtons,
             template_type: "generic",
             elements: elems
         };
+        this.addButton(elems[0], moreButtons);
     } else if (1 < elems.length) {
         payload = {
             template_type: "list",
