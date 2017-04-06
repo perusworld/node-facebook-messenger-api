@@ -100,9 +100,12 @@ Messenger.prototype.callSendAPI = function (messageData, callback) {
                 args.push(response.statusCode);
                 args.push(response.statusMessage);
             }
+            if (body && body.error) {
+                args.push(body.error);
+            }
             ptr.error.apply(ptr, args);
             if (callback) {
-                callback(error, null)
+                callback(args, null)
             }
         }
     });
