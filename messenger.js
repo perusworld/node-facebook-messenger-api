@@ -373,6 +373,15 @@ Messenger.prototype.sendTextMessage = function (recipientId, messageText, metada
     this.callSendAPI(messageData, callback);
 };
 
+Messenger.prototype.sendQuickReplyOrMessage = function (recipientId, messageText, quickReply, metadata, callback) {
+    console.log('quickReply', quickReply);
+    if (quickReply) {
+        this.sendQuickReply(recipientId, messageText, quickReply);
+    } else {
+        this.sendTextMessage(recipientId, messageText, metadata, callback);
+    }
+};
+
 Messenger.prototype.sendButtonMessage = function (recipientId, payload, callback) {
     var messageData = {
         recipient: {
@@ -456,14 +465,34 @@ Messenger.prototype.sendCompactList = function (recipientId, elems, moreButtons,
     this.sendTemplate(recipientId, payload, callback);
 };
 
-Messenger.prototype.sendQuickReply = function (recipientId, msg, callback) {
+Messenger.prototype.sendQuickReply = function (recipientId, messageText, replies, callback) {
+    var arr = [];
+    var quickReplies = Array.isArray(replies) ? Array.from(new Set(replies)) : [replies];
+    quickReplies.forEach((entry) => {
+        if (entry) {
+            if (typeof entry === 'object') {
+                if (!entry.content_type) {
+                    entry.content_type = 'text'
+                }
+                arr.push(entry);
+            } else {
+                arr.push({
+                    content_type: "text",
+                    title: entry,
+                    payload: entry
+                })
+            }
+        }
+    });
     var messageData = {
         recipient: {
             id: recipientId
         },
-        message: msg
+        message: {
+            text: messageText,
+            quick_replies: arr
+        }
     };
-
     this.callSendAPI(messageData, callback);
 };
 
