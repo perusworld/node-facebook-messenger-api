@@ -8,24 +8,17 @@ npm install github:perusworld/node-facebook-messenger-api --save
 ```
 
 
-## Setup ##
-
-Create a file **default.json** under **config** folder with the following values filled according to your fb messenger/page. See [Setup](https://developers.facebook.com/docs/messenger-platform/guides/setup) for more details.
-```json
-{
-    "appSecret": "",
-    "pageAccessToken": "",
-    "validationToken": "",
-    "serverURL": "",
-    "logAPI": false
-}
-```
-
 ## Usage ##
+See [Setup](https://developers.facebook.com/docs/messenger-platform/guides/setup) for more details about setting up the bot/page.
 
 ### Get User Profile - [User Profile API](https://developers.facebook.com/docs/messenger-platform/user-profile) ##
 ```javascript
-var messengerapi = require('node-facebook-messenger-api').messenger();
+var messengerapi = require('node-facebook-messenger-api').messenger({
+    appSecret: "",
+    pageAccessToken: "",
+    validationToken: "",
+    logAPI: false
+});
 var messenger = new messengerapi.Messenger();
 
 var pageScopeUserID = "...";
