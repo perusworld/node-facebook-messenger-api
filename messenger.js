@@ -587,7 +587,7 @@ Messenger.prototype.buildEntries = function (opts, lastOffset) {
     if (!nextBuilder) {
         nextBuilder = this.nextBuilder.bind(this);
     }
-    var fromIdx = typeof opts.from == 'number' ? opts.from : opts.from.next ? Number.parseInt(opts.from.next) : 0;
+    var fromIdx = opts.from ? typeof opts.from == 'number' ? opts.from : opts.from.next ? Number.parseInt(opts.from.next) : 0 : 0;
     opts.arr.forEach((entry, idx) => {
         if (idx >= fromIdx) {
             if (opts.arr.length == (fromIdx + opts.listMax)) {
