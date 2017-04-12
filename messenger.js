@@ -21,16 +21,24 @@ function Messenger(config) {
         (process.env.LOG_API) :
         config.logAPI;
 
+    const httpProxy = (process.env.HTTP_PROXY) ?
+        (process.env.HTTP_PROXY) :
+        config.httpProxy;
+
     if (!(appSecret && validationToken && pageAccessToken)) {
         console.error("Missing config values");
         process.exit(1);
     }
 
+    if (httpProxy && "" !== httpProxy) {
+        console.log('using proxy', httpProxy)
+    }
     this.conf = {
         log: logApi || false,
         appSecret: appSecret,
         validationToken: validationToken,
         pageAccessToken: pageAccessToken,
+        httpProxy: httpProxy,
         urlPrefix: 'https://graph.facebook.com/v2.6/'
     };
 }
@@ -65,9 +73,16 @@ Messenger.prototype.verifySignature = function (signature, buf) {
     return ret;
 };
 
+Messenger.prototype.updateReq = function (req) {
+    if (this.conf.httpProxy && "" !== this.conf.httpProxy) {
+        req.proxy = this.conf.httpProxy;
+    }
+    return req;
+};
+
 Messenger.prototype.callSendAPI = function (messageData, callback) {
     var ptr = this;
-    request({
+    request(this.updateReq({
         uri: this.conf.urlPrefix + 'me/messages',
         qs: {
             access_token: this.conf.pageAccessToken
@@ -75,7 +90,7 @@ Messenger.prototype.callSendAPI = function (messageData, callback) {
         method: 'POST',
         json: messageData
 
-    }, function (error, response, body) {
+    }), function (error, response, body) {
         if (!error && response.statusCode == 200) {
             var recipientId = body.recipient_id;
             var messageId = body.message_id;
@@ -112,14 +127,14 @@ Messenger.prototype.callSendAPI = function (messageData, callback) {
 
 Messenger.prototype.getUserProfile = function (userId, callback) {
     var ptr = this;
-    request({
+    request(this.updateReq({
         uri: this.conf.urlPrefix + userId,
         qs: {
             access_token: this.conf.pageAccessToken,
             fields: 'first_name,last_name,profile_pic,locale,timezone,gender'
         },
         method: 'GET'
-    }, function (error, response, body) {
+    }), function (error, response, body) {
         if (!error && response.statusCode == 200) {
             callback(null, JSON.parse(body))
         } else {
@@ -131,7 +146,7 @@ Messenger.prototype.getUserProfile = function (userId, callback) {
 
 Messenger.prototype.getAccountLinkingEndpoint = function (token, callback) {
     var ptr = this;
-    request({
+    request(this.updateReq({
         uri: this.conf.urlPrefix + "me",
         qs: {
             access_token: this.conf.pageAccessToken,
@@ -139,7 +154,7 @@ Messenger.prototype.getAccountLinkingEndpoint = function (token, callback) {
             account_linking_token: token
         },
         method: 'GET'
-    }, function (error, response, body) {
+    }), function (error, response, body) {
         if (!error && response.statusCode == 200) {
             callback(null, body)
         } else {
@@ -151,14 +166,14 @@ Messenger.prototype.getAccountLinkingEndpoint = function (token, callback) {
 
 Messenger.prototype.setThreadSettings = function (messageData, callback) {
     var ptr = this;
-    request({
+    request(this.updateReq({
         uri: this.conf.urlPrefix + "me/thread_settings",
         qs: {
             access_token: this.conf.pageAccessToken
         },
         method: 'POST',
         json: messageData
-    }, function (error, response, body) {
+    }), function (error, response, body) {
         if (!error && response.statusCode == 200) {
             callback(null, body)
         } else {
@@ -170,14 +185,14 @@ Messenger.prototype.setThreadSettings = function (messageData, callback) {
 
 Messenger.prototype.setMessengerProfile = function (profileData, callback) {
     var ptr = this;
-    request({
+    request(this.updateReq({
         uri: this.conf.urlPrefix + "me/messenger_profile",
         qs: {
             access_token: this.conf.pageAccessToken
         },
         method: 'POST',
         json: profileData
-    }, function (error, response, body) {
+    }), function (error, response, body) {
         if (!error && response.statusCode == 200) {
             callback(null, body)
         } else {
@@ -189,7 +204,7 @@ Messenger.prototype.setMessengerProfile = function (profileData, callback) {
 
 Messenger.prototype.removeMessengerProfile = function (fields, callback) {
     var ptr = this;
-    request({
+    request(this.updateReq({
         uri: this.conf.urlPrefix + "me/messenger_profile",
         qs: {
             access_token: this.conf.pageAccessToken
@@ -198,7 +213,7 @@ Messenger.prototype.removeMessengerProfile = function (fields, callback) {
         json: {
             fields: fields
         }
-    }, function (error, response, body) {
+    }), function (error, response, body) {
         if (!error && response.statusCode == 200) {
             callback(null, body)
         } else {
@@ -232,7 +247,7 @@ Messenger.prototype.removeGreetingText = function (callback) {
 
 Messenger.prototype.whitelistDomain = function (domain, add, callback) {
     var ptr = this;
-    request({
+    request(this.updateReq({
         uri: this.conf.urlPrefix + "me/thread_settings",
         qs: {
             access_token: this.conf.pageAccessToken
@@ -243,7 +258,7 @@ Messenger.prototype.whitelistDomain = function (domain, add, callback) {
             whitelisted_domains: [domain],
             domain_action_type: add ? "add" : "remove"
         }
-    }, function (error, response, body) {
+    }), function (error, response, body) {
         if (!error && response.statusCode == 200) {
             callback(null, body)
         } else {
@@ -255,7 +270,7 @@ Messenger.prototype.whitelistDomain = function (domain, add, callback) {
 
 Messenger.prototype.clearThreadSettings = function (callback) {
     var ptr = this;
-    request({
+    request(this.updateReq({
         uri: this.conf.urlPrefix + "me/thread_settings",
         qs: {
             access_token: this.conf.pageAccessToken
@@ -265,7 +280,7 @@ Messenger.prototype.clearThreadSettings = function (callback) {
             setting_type: "call_to_actions",
             thread_state: "existing_thread"
         }
-    }, function (error, response, body) {
+    }), function (error, response, body) {
         if (!error && response.statusCode == 200) {
             callback(null, body)
         } else {
