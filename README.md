@@ -67,7 +67,7 @@ export MESSENGER_VALIDATION_TOKEN="--yours--"
 export MESSENGER_PAGE_ACCESS_TOKEN="--yours--"
 node server
 ```
-
+Or use this in your existing code
 ```javascript
 const
   bodyParser = require('body-parser'),
