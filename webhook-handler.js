@@ -1,4 +1,28 @@
-module.exports = function (messenger, messageHandler, ignores, router) {
+const
+  bodyParser = require('body-parser');
+
+module.exports = function (messenger, messageHandler, verifySignature, ignores, router) {
+
+  if (verifySignature) {
+    router.use(bodyParser.json({
+      verify: function (req, res, buf) {
+        if (ignores && ignores.includes(req.url)) {
+          console.log('Ignoring signature verification for', req.url);
+        } else {
+          if (messenger.verifySignature(req.headers["x-hub-signature"], buf)) {
+            //NOOP
+          } else {
+            throw new Error("Couldn't validate the request signature.");
+          }
+        }
+      }
+    }));
+  } else {
+    router.use(bodyParser.json());
+  }
+  router.use(bodyParser.urlencoded({
+    extended: true
+  }));
 
   /*
    * Use your own validation token. Check that the token used in the Webhook 
@@ -131,19 +155,5 @@ module.exports = function (messenger, messageHandler, ignores, router) {
     messageHandler.receivedAccountLink(event);
   }
 
-  return {
-    router: router,
-    verifyRequestSignature: function (req, res, buf) {
-      if (ignores.includes(req.url)) {
-        console.log('Ignoring signature verification for', req.url);
-      } else {
-        if (messenger.verifySignature(req.headers["x-hub-signature"], buf)) {
-          //NOOP
-        } else {
-          console.error("Couldn't validate the signature.", req.url);
-          throw new Error("Couldn't validate the request signature.");
-        }
-      }
-    }
-  };
+  return router;
 }
