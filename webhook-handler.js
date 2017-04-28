@@ -73,7 +73,7 @@ module.exports = function (messenger, messageHandler, verifySignature, ignores, 
         });
       }
     } catch (error) {
-      console.error(error)
+      console.error(error);
     }
     res.sendStatus(200);
   });
@@ -156,4 +156,4 @@ module.exports = function (messenger, messageHandler, verifySignature, ignores, 
   }
 
   return router;
-}
+};

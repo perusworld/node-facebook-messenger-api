@@ -7,4 +7,4 @@ module.exports = {
     webhookHandler: function () {
         return require('./webhook-handler');
     }
-}
+};

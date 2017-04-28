@@ -31,7 +31,7 @@ function Messenger(config) {
     }
 
     if (httpProxy && "" !== httpProxy) {
-        console.log('using proxy', httpProxy)
+        console.log('using proxy', httpProxy);
     }
     this.conf = {
         log: logApi || false,
@@ -103,7 +103,7 @@ Messenger.prototype.callSendAPI = function (messageData, callback) {
                     recipientId);
             }
             if (callback) {
-                callback(null, body)
+                callback(null, body);
             }
         } else {
             var args = ["Failed calling Send API"];
@@ -119,7 +119,7 @@ Messenger.prototype.callSendAPI = function (messageData, callback) {
             }
             ptr.error.apply(ptr, args);
             if (callback) {
-                callback(args, null)
+                callback(args, null);
             }
         }
     });
@@ -136,7 +136,7 @@ Messenger.prototype.getUserProfile = function (userId, callback) {
         method: 'GET'
     }), function (error, response, body) {
         if (!error && response.statusCode == 200) {
-            callback(null, JSON.parse(body))
+            callback(null, JSON.parse(body));
         } else {
             ptr.error("Failed calling Send API", response.statusCode, response.statusMessage, body.error);
             callback(error, null);
@@ -156,7 +156,7 @@ Messenger.prototype.getAccountLinkingEndpoint = function (token, callback) {
         method: 'GET'
     }), function (error, response, body) {
         if (!error && response.statusCode == 200) {
-            callback(null, body)
+            callback(null, body);
         } else {
             ptr.error("Failed calling Send API", response.statusCode, response.statusMessage, body.error);
             callback(error, null);
@@ -175,7 +175,7 @@ Messenger.prototype.setThreadSettings = function (messageData, callback) {
         json: messageData
     }), function (error, response, body) {
         if (!error && response.statusCode == 200) {
-            callback(null, body)
+            callback(null, body);
         } else {
             ptr.error("Failed calling Send API", response.statusCode, response.statusMessage, body.error);
             callback(error, null);
@@ -194,7 +194,7 @@ Messenger.prototype.setMessengerProfile = function (profileData, callback) {
         json: profileData
     }), function (error, response, body) {
         if (!error && response.statusCode == 200) {
-            callback(null, body)
+            callback(null, body);
         } else {
             ptr.error("Failed calling Send API", response.statusCode, response.statusMessage, body.error);
             callback(error, null);
@@ -215,7 +215,7 @@ Messenger.prototype.removeMessengerProfile = function (fields, callback) {
         }
     }), function (error, response, body) {
         if (!error && response.statusCode == 200) {
-            callback(null, body)
+            callback(null, body);
         } else {
             ptr.error("Failed calling Send API", response.statusCode, response.statusMessage, body.error);
             callback(error, null);
@@ -260,7 +260,7 @@ Messenger.prototype.whitelistDomain = function (domain, add, callback) {
         }
     }), function (error, response, body) {
         if (!error && response.statusCode == 200) {
-            callback(null, body)
+            callback(null, body);
         } else {
             ptr.error("Failed calling Send API", response.statusCode, response.statusMessage, body.error);
             callback(error, null);
@@ -282,7 +282,7 @@ Messenger.prototype.clearThreadSettings = function (callback) {
         }
     }), function (error, response, body) {
         if (!error && response.statusCode == 200) {
-            callback(null, body)
+            callback(null, body);
         } else {
             ptr.error("Failed calling Send API", response.statusCode, response.statusMessage, body.error);
             callback(error, null);
@@ -303,7 +303,7 @@ Messenger.prototype.sendImageMessage = function (recipientId, payload) {
         }
     };
 
-    callSendAPI(messageData);
+    this.callSendAPI(messageData);
 };
 
 Messenger.prototype.sendGifMessage = function (recipientId, payload, callback) {
@@ -453,7 +453,7 @@ Messenger.prototype.addButton = function (element, btns) {
             element.buttons = [];
         }
         if (3 > element.buttons.length) {
-            element.buttons.push(btns[0])
+            element.buttons.push(btns[0]);
         }
     }
 };
@@ -473,7 +473,7 @@ Messenger.prototype.sendCompactList = function (recipientId, elems, moreButtons,
             elements: elems
         };
         if (moreButtons) {
-            payload.buttons = moreButtons
+            payload.buttons = moreButtons;
         }
     }
     this.sendTemplate(recipientId, payload, callback);
@@ -486,7 +486,7 @@ Messenger.prototype.sendQuickReply = function (recipientId, messageText, replies
         if (entry) {
             if (typeof entry === 'object') {
                 if (!entry.content_type) {
-                    entry.content_type = 'text'
+                    entry.content_type = 'text';
                 }
                 arr.push(entry);
             } else {
@@ -494,7 +494,7 @@ Messenger.prototype.sendQuickReply = function (recipientId, messageText, replies
                     content_type: "text",
                     title: entry,
                     payload: entry
-                })
+                });
             }
         }
     });
@@ -628,7 +628,7 @@ Messenger.prototype.buildListElements = function (opts) {
 Messenger.prototype.buildPostback = function (target, request) {
     var ret = [target];
     for (var key in request) {
-        if (request.hasOwnProperty(key) && !(typeof request[key] === 'function')) {
+        if (request.hasOwnProperty(key) && typeof request[key] !== 'function') {
             ret.push(key);
             ret.push(request[key]);
         }
