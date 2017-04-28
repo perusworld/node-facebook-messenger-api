@@ -1,5 +1,9 @@
 # Simple Node.js Facebook Messenger API #
 
+[![bitHound Overall Score](https://www.bithound.io/github/perusworld/node-facebook-messenger-api/badges/score.svg)](https://www.bithound.io/github/perusworld/node-facebook-messenger-api)
+[![bitHound Dependencies](https://www.bithound.io/github/perusworld/node-facebook-messenger-api/badges/dependencies.svg)](https://www.bithound.io/github/perusworld/node-facebook-messenger-api/master/dependencies/npm)
+[![bitHound Code](https://www.bithound.io/github/perusworld/node-facebook-messenger-api/badges/code.svg)](https://www.bithound.io/github/perusworld/node-facebook-messenger-api)
+
 Based on the [Messenger Platform Sample](https://github.com/fbsamples/messenger-platform-samples)
 
 ## Install ##
