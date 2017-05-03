@@ -1,4 +1,6 @@
 const
+  error = require('debug')('error'),
+  debug = require('debug')('fb-webhook-handler'),
   bodyParser = require('body-parser');
 
 module.exports = function (messenger, messageHandler, verifySignature, ignores, router) {
@@ -7,7 +9,7 @@ module.exports = function (messenger, messageHandler, verifySignature, ignores, 
     router.use(bodyParser.json({
       verify: function (req, res, buf) {
         if (ignores && ignores.includes(req.url)) {
-          console.log('Ignoring signature verification for', req.url);
+          debug('Ignoring signature verification for', req.url);
         } else {
           if (messenger.verifySignature(req.headers["x-hub-signature"], buf)) {
             //NOOP
@@ -31,10 +33,10 @@ module.exports = function (messenger, messageHandler, verifySignature, ignores, 
    */
   router.get('/webhook', function (req, res) {
     if (req.query['hub.mode'] === 'subscribe' && messenger.matchToken(req.query['hub.verify_token'])) {
-      console.log("Validating webhook");
+      debug("Validating webhook");
       res.status(200).send(req.query['hub.challenge']);
     } else {
-      console.error("Failed validation. Make sure the validation tokens match.");
+      error("Failed validation. Make sure the validation tokens match.");
       res.sendStatus(403);
     }
   });
@@ -67,13 +69,13 @@ module.exports = function (messenger, messageHandler, verifySignature, ignores, 
             } else if (messagingEvent.account_linking) {
               receivedAccountLink(messagingEvent);
             } else {
-              console.log("Webhook received unknown messagingEvent: ", messagingEvent);
+              debug("Webhook received unknown messagingEvent: ", messagingEvent);
             }
           });
         });
       }
-    } catch (error) {
-      console.error(error);
+    } catch (err) {
+      error(err);
     }
     res.sendStatus(200);
   });

@@ -1,6 +1,6 @@
 {
   "name": "node-facebook-messenger-api",
-  "version": "1.8.0",
+  "version": "1.8.1",
   "description": "Simple Node.js Facebook Messenger API",
   "main": "node-facebook-messenger-api.js",
   "scripts": {
@@ -23,7 +23,8 @@
   },
   "homepage": "https://github.com/perusworld/node-facebook-messenger-api",
   "dependencies": {
-    "request": "^2.79.0"
+    "debug": "^2.6.6",
+    "request": "^2.81.0"
   },
   "devDependencies": {
     "body-parser": "^1.17.1",

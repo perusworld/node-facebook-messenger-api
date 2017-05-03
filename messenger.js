@@ -2,6 +2,8 @@
 
 const
     crypto = require('crypto'),
+    err = require('debug')('error'),
+    debug = require('debug')('messenger'),
     request = require('request');
 
 function Messenger(config) {
@@ -17,24 +19,19 @@ function Messenger(config) {
         (process.env.MESSENGER_PAGE_ACCESS_TOKEN) :
         config.pageAccessToken;
 
-    const logApi = (process.env.LOG_API) ?
-        (process.env.LOG_API) :
-        config.logAPI;
-
     const httpProxy = (process.env.HTTP_PROXY) ?
         (process.env.HTTP_PROXY) :
         config.httpProxy;
 
     if (!(appSecret && validationToken && pageAccessToken)) {
-        console.error("Missing config values");
+        debug("Missing config values");
         process.exit(1);
     }
 
     if (httpProxy && "" !== httpProxy) {
-        console.log('using proxy', httpProxy);
+        debug('using proxy', httpProxy);
     }
     this.conf = {
-        log: logApi || false,
         appSecret: appSecret,
         validationToken: validationToken,
         pageAccessToken: pageAccessToken,
@@ -42,18 +39,6 @@ function Messenger(config) {
         urlPrefix: 'https://graph.facebook.com/v2.6/'
     };
 }
-
-Messenger.prototype.log = function () {
-    if (this.conf.log) {
-        console.log.apply(this, arguments);
-    }
-};
-
-Messenger.prototype.error = function () {
-    if (this.conf.log) {
-        console.error(arguments);
-    }
-};
 
 Messenger.prototype.matchToken = function (token) {
     return this.conf.validationToken === token;
@@ -96,10 +81,10 @@ Messenger.prototype.callSendAPI = function (messageData, callback) {
             var messageId = body.message_id;
 
             if (messageId) {
-                ptr.log("Successfully sent message with id %s to recipient %s",
+                debug("Successfully sent message with id %s to recipient %s",
                     messageId, recipientId);
             } else {
-                ptr.log("Successfully called Send API for recipient %s",
+                debug("Successfully called Send API for recipient %s",
                     recipientId);
             }
             if (callback) {
@@ -117,7 +102,7 @@ Messenger.prototype.callSendAPI = function (messageData, callback) {
             if (body && body.error) {
                 args.push(body.error);
             }
-            ptr.error.apply(ptr, args);
+            err(args);
             if (callback) {
                 callback(args, null);
             }
@@ -138,7 +123,7 @@ Messenger.prototype.getUserProfile = function (userId, callback) {
         if (!error && response.statusCode == 200) {
             callback(null, JSON.parse(body));
         } else {
-            ptr.error("Failed calling Send API", response.statusCode, response.statusMessage, body.error);
+            err("Failed calling Send API", response.statusCode, response.statusMessage, body.error);
             callback(error, null);
         }
     });
@@ -158,7 +143,7 @@ Messenger.prototype.getAccountLinkingEndpoint = function (token, callback) {
         if (!error && response.statusCode == 200) {
             callback(null, body);
         } else {
-            ptr.error("Failed calling Send API", response.statusCode, response.statusMessage, body.error);
+            err("Failed calling Send API", response.statusCode, response.statusMessage, body.error);
             callback(error, null);
         }
     });
@@ -177,7 +162,7 @@ Messenger.prototype.setThreadSettings = function (messageData, callback) {
         if (!error && response.statusCode == 200) {
             callback(null, body);
         } else {
-            ptr.error("Failed calling Send API", response.statusCode, response.statusMessage, body.error);
+            err("Failed calling Send API", response.statusCode, response.statusMessage, body.error);
             callback(error, null);
         }
     });
@@ -196,7 +181,7 @@ Messenger.prototype.setMessengerProfile = function (profileData, callback) {
         if (!error && response.statusCode == 200) {
             callback(null, body);
         } else {
-            ptr.error("Failed calling Send API", response.statusCode, response.statusMessage, body.error);
+            err("Failed calling Send API", response.statusCode, response.statusMessage, body.error);
             callback(error, null);
         }
     });
@@ -217,7 +202,7 @@ Messenger.prototype.removeMessengerProfile = function (fields, callback) {
         if (!error && response.statusCode == 200) {
             callback(null, body);
         } else {
-            ptr.error("Failed calling Send API", response.statusCode, response.statusMessage, body.error);
+            err("Failed calling Send API", response.statusCode, response.statusMessage, body.error);
             callback(error, null);
         }
     });
@@ -262,7 +247,7 @@ Messenger.prototype.whitelistDomain = function (domain, add, callback) {
         if (!error && response.statusCode == 200) {
             callback(null, body);
         } else {
-            ptr.error("Failed calling Send API", response.statusCode, response.statusMessage, body.error);
+            err("Failed calling Send API", response.statusCode, response.statusMessage, body.error);
             callback(error, null);
         }
     });
@@ -284,7 +269,7 @@ Messenger.prototype.clearThreadSettings = function (callback) {
         if (!error && response.statusCode == 200) {
             callback(null, body);
         } else {
-            ptr.error("Failed calling Send API", response.statusCode, response.statusMessage, body.error);
+            err("Failed calling Send API", response.statusCode, response.statusMessage, body.error);
             callback(error, null);
         }
     });
@@ -388,7 +373,7 @@ Messenger.prototype.sendTextMessage = function (recipientId, messageText, metada
 };
 
 Messenger.prototype.sendQuickReplyOrMessage = function (recipientId, messageText, quickReply, metadata, callback) {
-    console.log('quickReply', quickReply);
+    debug('quickReply', quickReply);
     if (quickReply) {
         this.sendQuickReply(recipientId, messageText, quickReply);
     } else {
@@ -511,7 +496,7 @@ Messenger.prototype.sendQuickReply = function (recipientId, messageText, replies
 };
 
 Messenger.prototype.sendReadReceipt = function (recipientId, callback) {
-    console.log("Sending a read receipt to mark message as seen");
+    debug("Sending a read receipt to mark message as seen");
 
     var messageData = {
         recipient: {
@@ -524,7 +509,7 @@ Messenger.prototype.sendReadReceipt = function (recipientId, callback) {
 };
 
 Messenger.prototype.sendTypingOn = function (recipientId, callback) {
-    console.log("Turning typing indicator on");
+    debug("Turning typing indicator on");
 
     var messageData = {
         recipient: {
@@ -537,7 +522,7 @@ Messenger.prototype.sendTypingOn = function (recipientId, callback) {
 };
 
 Messenger.prototype.sendTypingOff = function (recipientId, callback) {
-    console.log("Turning typing indicator off");
+    debug("Turning typing indicator off");
 
     var messageData = {
         recipient: {
