@@ -24,7 +24,7 @@ function Messenger(config) {
         config.httpProxy;
 
     if (!(appSecret && validationToken && pageAccessToken)) {
-        debug("Missing config values");
+        err("Missing config values");
         process.exit(1);
     }
 
