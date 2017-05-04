@@ -7,6 +7,10 @@ const
     request = require('request');
 
 function Messenger(config) {
+    const url = (process.env.MESSENGER_URL) ?
+        process.env.MESSENGER_URL :
+        config.url || 'https://graph.facebook.com/v2.6/';
+
     const appSecret = (process.env.MESSENGER_APP_SECRET) ?
         process.env.MESSENGER_APP_SECRET :
         config.appSecret;
@@ -23,7 +27,7 @@ function Messenger(config) {
         (process.env.HTTP_PROXY) :
         config.httpProxy;
 
-    if (!(appSecret && validationToken && pageAccessToken)) {
+    if (!(appSecret && validationToken && pageAccessToken && url)) {
         err("Missing config values");
         process.exit(1);
     }
@@ -36,7 +40,7 @@ function Messenger(config) {
         validationToken: validationToken,
         pageAccessToken: pageAccessToken,
         httpProxy: httpProxy,
-        urlPrefix: 'https://graph.facebook.com/v2.6/'
+        urlPrefix: url
     };
 }
 
