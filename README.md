@@ -98,8 +98,11 @@ var webhookHandler = require('node-facebook-messenger-api').webhookHandler()(mes
   receivedMessageRead : function(event) {
     console.log('receivedMessageRead', event);
   },
-  receivedAccountLink : function(event) {
-    console.log('receivedAccountLink', event);
+  doLinking : function(event) {
+    console.log('doLinking', event);
+  },
+  doUnlinking : function(event) {
+    console.log('doUnlinking', event);
   }
 },verifySignature, ignores, express.Router());
 

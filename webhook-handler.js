@@ -154,7 +154,16 @@ module.exports = function (messenger, messageHandler, verifySignature, ignores, 
    * 
    */
   function receivedAccountLink(event) {
-    messageHandler.receivedAccountLink(event);
+    var status = event.account_linking.status;
+
+    if ('linked' == status) {
+      messageHandler.doLinking(event);
+    } else if ('unlinked' == status) {
+      messageHandler.doUnlinking(event);
+    } else {
+      error('unknown linking event', event);
+    }
+
   }
 
   return router;
