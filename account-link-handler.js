@@ -2,7 +2,7 @@
 
 const async = require('async'),
   crypto = require('crypto'),
-  err = require('debug')('error'),
+  error = require('debug')('error'),
   debug = require('debug')('fb-accountlink');
 
 function AccountLinkHandler(config) {
@@ -125,7 +125,7 @@ AccountLinkHandler.prototype.doLinking = function (event, callback, handler) {
     },
   ], function (err, deleted) {
     if (err || !deleted) {
-      err('failed to process account linking for', senderID, recipientID, authCode, err);
+      error('failed to process account linking for', senderID, recipientID, authCode, err);
       callback('failed to process account linking', null);
     } else {
       debug('successfully setup account linking for', senderID, recipientID, authCode);
@@ -164,7 +164,7 @@ AccountLinkHandler.prototype.doUnlinking = function (event, callback) {
     }
   ], function (err, deleted) {
     if (err || !deleted) {
-      err('failed to process account unlinking for', senderID, recipientID, err);
+      error('failed to process account unlinking for', senderID, recipientID, err);
       callback('failed to process account unlinking', null);
     } else {
       debug('successfully unlinked account for', senderID, recipientID);
