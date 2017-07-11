@@ -66,6 +66,8 @@ The example folder contains a sample app
 ```bash
 npm install
 cd example
+export MESSENGER_APP_ID = "--yours--";
+export MESSENGER_PAGE_ID = "--yours--";
 export MESSENGER_APP_SECRET="--yours--"
 export MESSENGER_VALIDATION_TOKEN="--yours--"
 export MESSENGER_PAGE_ACCESS_TOKEN="--yours--"
@@ -114,4 +116,24 @@ app.use('/fb', webhookHandler);
 app.listen(app.get('port'), function () {
   console.log('Node app is running in http mode on port', app.get('port'));
 });
+```
+#### Analytics Events ####
+You can now send analytics events through the following API (See [App Events with Bots for Messenger - Logging Custom Events](https://developers.facebook.com/docs/app-events/bots-for-messenger#logging-custom-events) and [App Events API](https://developers.facebook.com/docs/marketing-api/app-event-api/v2.9) for more details about the event types)
+
+ - Custom Event
+```javascript
+  messenger.analyticsEvent(event.sender.id,
+    messenger.buildAnalyticsEvent("fb_mobile_custom_event"),
+    (err, resp) => {
+      //Handle
+    });
+```
+
+ - Standard Purchase Event
+```javascript
+  messenger.analyticsEvent(event.sender.id,
+    messenger.buildAnalyticsEvent("fb_mobile_purchase", 9.99, 'USD'),
+    (err, resp) => {
+      //Handle
+    });
 ```

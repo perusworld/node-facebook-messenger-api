@@ -23,6 +23,14 @@ function Messenger(config) {
         (process.env.MESSENGER_PAGE_ACCESS_TOKEN) :
         config.pageAccessToken;
 
+    const appId = (process.env.MESSENGER_APP_ID) ?
+        (process.env.MESSENGER_APP_ID) :
+        config.appId;
+
+    const pageId = (process.env.MESSENGER_PAGE_ID) ?
+        (process.env.MESSENGER_PAGE_ID) :
+        config.pageId;
+
     const httpProxy = (process.env.HTTP_PROXY) ?
         (process.env.HTTP_PROXY) :
         config.httpProxy;
@@ -40,7 +48,8 @@ function Messenger(config) {
         validationToken: validationToken,
         pageAccessToken: pageAccessToken,
         httpProxy: httpProxy,
-        urlPrefix: url
+        urlPrefix: url,
+        analyticsUrl: 'https://graph.facebook.com/' + appId + '/activities'
     };
 }
 
@@ -275,6 +284,56 @@ Messenger.prototype.clearThreadSettings = function (callback) {
         } else {
             err("Failed calling Send API", response.statusCode, response.statusMessage, body.error);
             callback(error, null);
+        }
+    });
+};
+
+Messenger.prototype.buildAnalyticsEvent = function (eventName, value, currency) {
+    var ret = {
+        _eventName: eventName
+    };
+    if (value) {
+        ret._valueToSum = value;
+    }
+    if (currency) {
+        ret.fb_currency = currency;
+    }
+    return ret;
+};
+
+Messenger.prototype.analyticsEvent = function (recipientId, event, callback) {
+    request.post({
+        url: this.conf.analyticsUrl,
+        form: {
+            event: 'CUSTOM_APP_EVENTS',
+            custom_events: JSON.stringify([event]),
+            advertiser_tracking_enabled: 0,
+            application_tracking_enabled: 0,
+            extinfo: JSON.stringify(['mb1']),
+            page_id: this.conf.pageId,
+            page_scoped_user_id: recipientId
+        }
+    }, function (error, response, body) {
+        if (!error && response.statusCode == 200) {
+            if (callback) {
+                callback(null, body);
+            }
+        } else {
+            var args = ["Failed calling analyticsEvent"];
+            if (error) {
+                args.push(error);
+            }
+            if (response) {
+                args.push(response.statusCode);
+                args.push(response.statusMessage);
+            }
+            if (body && body.error) {
+                args.push(body.error);
+            }
+            err(args);
+            if (callback) {
+                callback(args, null);
+            }
         }
     });
 };

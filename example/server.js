@@ -21,6 +21,20 @@ var webhookHandler = require('../node-facebook-messenger-api').webhookHandler()(
             messenger.sendTextMessage(event.sender.id, JSON.stringify(err ? err : resp));
           });
           break;
+        case 'analytics':
+          messenger.analyticsEvent(event.sender.id,
+            messenger.buildAnalyticsEvent("fb_mobile_custom_event"),
+            (err, resp) => {
+              messenger.sendTextMessage(event.sender.id, JSON.stringify(err ? err : resp));
+            });
+          break;
+        case 'analytics usd':
+          messenger.analyticsEvent(event.sender.id,
+            messenger.buildAnalyticsEvent("fb_mobile_purchase", 9.99, 'USD'),
+            (err, resp) => {
+              messenger.sendTextMessage(event.sender.id, JSON.stringify(err ? err : resp));
+            });
+          break;
         default:
           messenger.sendTextMessage(event.sender.id, JSON.stringify(event));
           break;
