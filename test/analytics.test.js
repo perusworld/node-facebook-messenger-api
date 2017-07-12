@@ -26,7 +26,7 @@ function getMessenger(logLevel) {
 test('check none log', (done) => {
   var messenger = getMessenger(messengerapi.ANALYTICS_LEVEL_NONE);
   messenger.sendActivity = (payload, callback) => {
-    callback(null, { resp: true, statusCode: 200 }, { body: true });
+    callback(null, { resp: true, statusCode: 200 }, "{\"success\":true}");
   };
   messenger.analyticsEvent(messengerapi.ANALYTICS_LEVEL_CRITICAL, 'blah', () => {
     return {
@@ -44,7 +44,7 @@ test('check none log', (done) => {
 test('check verbose log', (done) => {
   var messenger = getMessenger(messengerapi.ANALYTICS_LEVEL_VERBOSE);
   messenger.sendActivity = (payload, callback) => {
-    callback(null, { resp: true, statusCode: 200 }, { body: true });
+    callback(null, { resp: true, statusCode: 200 }, "{\"success\":true}");
   };
   messenger.analyticsEvent(messengerapi.ANALYTICS_LEVEL_VERBOSE, 'blah', () => {
     return {
@@ -53,8 +53,8 @@ test('check verbose log', (done) => {
   }, (err, resp) => {
     expect(err).toBeNull();
     expect(resp).not.toBeNull();
-    expect(resp.body).toBeDefined();
-    expect(resp.body).toBeTruthy();
+    expect(resp.success).toBeDefined();
+    expect(resp.success).toBeTruthy();
     done();
   });
 });
@@ -62,7 +62,7 @@ test('check verbose log', (done) => {
 test('check critical log', (done) => {
   var messenger = getMessenger(messengerapi.ANALYTICS_LEVEL_CRITICAL);
   messenger.sendActivity = (payload, callback) => {
-    callback(null, { resp: true, statusCode: 200 }, { body: true });
+    callback(null, { resp: true, statusCode: 200 }, "{\"success\":true}");
   };
   messenger.analyticsEvent(messengerapi.ANALYTICS_LEVEL_CRITICAL, 'blah', () => {
     return {
@@ -71,8 +71,8 @@ test('check critical log', (done) => {
   }, (err, resp) => {
     expect(err).toBeNull();
     expect(resp).not.toBeNull();
-    expect(resp.body).toBeDefined();
-    expect(resp.body).toBeTruthy();
+    expect(resp.success).toBeDefined();
+    expect(resp.success).toBeTruthy();
     done();
   });
 });
@@ -80,7 +80,7 @@ test('check critical log', (done) => {
 test('check verbose on critical log', (done) => {
   var messenger = getMessenger(messengerapi.ANALYTICS_LEVEL_CRITICAL);
   messenger.sendActivity = (payload, callback) => {
-    callback(null, { resp: true, statusCode: 200 }, { body: true });
+    callback(null, { resp: true, statusCode: 200 }, "{\"success\":true}");
   };
   messenger.analyticsEvent(messengerapi.ANALYTICS_LEVEL_VERBOSE, 'blah', () => {
     return {
@@ -98,7 +98,7 @@ test('check verbose on critical log', (done) => {
 test('check critical on verbose log', (done) => {
   var messenger = getMessenger(messengerapi.ANALYTICS_LEVEL_VERBOSE);
   messenger.sendActivity = (payload, callback) => {
-    callback(null, { resp: true, statusCode: 200 }, { body: true });
+    callback(null, { resp: true, statusCode: 200 }, "{\"success\":true}");
   };
   messenger.analyticsEvent(messengerapi.ANALYTICS_LEVEL_CRITICAL, 'blah', () => {
     return {
@@ -107,8 +107,8 @@ test('check critical on verbose log', (done) => {
   }, (err, resp) => {
     expect(err).toBeNull();
     expect(resp).not.toBeNull();
-    expect(resp.body).toBeDefined();
-    expect(resp.body).toBeTruthy();
+    expect(resp.success).toBeDefined();
+    expect(resp.success).toBeTruthy();
     done();
   });
 });
@@ -116,7 +116,7 @@ test('check critical on verbose log', (done) => {
 test('check unknown log', (done) => {
   var messenger = getMessenger(messengerapi.ANALYTICS_LEVEL_VERBOSE);
   messenger.sendActivity = (payload, callback) => {
-    callback(null, { resp: true, statusCode: 200 }, { body: true });
+    callback(null, { resp: true, statusCode: 200 }, "{\"success\":true}");
   };
   messenger.analyticsEvent(10, 'blah', () => {
     return {

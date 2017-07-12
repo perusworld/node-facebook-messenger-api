@@ -352,7 +352,7 @@ Messenger.prototype.analyticsEvent = function (level, recipientId, eventBuilder,
     ], function (error, response, body) {
         if (!error && response.statusCode == 200) {
             if (callback) {
-                callback(null, body);
+                callback(null, JSON.parse(body));
             }
         } else if (error && error.skip) {
             callback(null, error);
