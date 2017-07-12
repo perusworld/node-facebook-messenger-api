@@ -17,17 +17,19 @@ See [Setup](https://developers.facebook.com/docs/messenger-platform/guides/setup
 
 ### Get User Profile - [User Profile API](https://developers.facebook.com/docs/messenger-platform/user-profile) ##
 ```javascript
-var messengerapi = require('node-facebook-messenger-api').messenger({
+var messengerapi = require('node-facebook-messenger-api').messenger();
+var messenger = new messengerapi.Messenger({
+    appId:"",
+    pageId: "",
+    analyticsLogLevel: "",
     appSecret: "",
     pageAccessToken: "",
-    validationToken: "",
-    logAPI: false
+    validationToken: ""
 });
-var messenger = new messengerapi.Messenger();
 
-var pageScopeUserID = "...";
+var pageScopedUserID = "...";
 
-messenger.getUserProfile(pageScopeUserID, (err, resp) => {
+messenger.getUserProfile(pageScopedUserID, (err, resp) => {
     if (err) {
         console.error(recipientId, "Sorry, looks like the backend is down :-(");
     } else {
@@ -66,6 +68,7 @@ The example folder contains a sample app
 ```bash
 npm install
 cd example
+export MESSENGER_ANALYTICS_LOG_LEVEL = "2";
 export MESSENGER_APP_ID = "--yours--";
 export MESSENGER_PAGE_ID = "--yours--";
 export MESSENGER_APP_SECRET="--yours--"
@@ -120,20 +123,46 @@ app.listen(app.get('port'), function () {
 #### Analytics Events ####
 You can now send analytics events through the following API (See [App Events with Bots for Messenger - Logging Custom Events](https://developers.facebook.com/docs/app-events/bots-for-messenger#logging-custom-events) and [App Events API](https://developers.facebook.com/docs/marketing-api/app-event-api/v2.9) for more details about the event types)
 
+For performace reasons if you would like to throttle the events that you would like to send/track, you can use the env variable
+```bash
+export MESSENGER_ANALYTICS_LOG_LEVEL = "2";
+```
+to control the log levels. Set that to 
+
+Level | Value | Description |
+--- | --- | --- |
+None | 99 | Don't send any analytics events |
+Critical | 2 | Send only critical analytics events |
+Verbose | 1 | Send all analytics events |
+
+The asynchronous callback from the *analyticsEvent* call would be either 
+```json
+{
+  "success": true
+}
+```
+if the event was successfully accepted or
+```json
+{
+  "skip": true
+}
+```
+if the event was skipped due lower log levels
+
  - Custom Event
 ```javascript
-  messenger.analyticsEvent(event.sender.id,
-    messenger.buildAnalyticsEvent("fb_mobile_custom_event"),
-    (err, resp) => {
-      //Handle
-    });
+  messenger.analyticsEvent(messengerapi.ANALYTICS_LEVEL_VERBOSE, event.sender.id, () => {
+    return messenger.buildAnalyticsEvent("fb_mobile_verbose_event");
+  }, (err, resp) => {
+    //Handle
+  });
 ```
 
  - Standard Purchase Event
 ```javascript
-  messenger.analyticsEvent(event.sender.id,
-    messenger.buildAnalyticsEvent("fb_mobile_purchase", 9.99, 'USD'),
-    (err, resp) => {
-      //Handle
-    });
+  messenger.analyticsEvent(messengerapi.ANALYTICS_LEVEL_CRITICAL, event.sender.id, () => {
+    return messenger.buildAnalyticsEvent("fb_mobile_purchase", 9.99, 'USD');
+  }, (err, resp) => {
+    //Handle
+  });
 ```
