@@ -49,7 +49,9 @@ function Messenger(config) {
         pageAccessToken: pageAccessToken,
         httpProxy: httpProxy,
         urlPrefix: url,
-        analyticsUrl: 'https://graph.facebook.com/' + appId + '/activities'
+        analyticsUrl: 'https://graph.facebook.com/' + appId + '/activities',
+        pageId: pageId,
+        appId: appId
     };
 }
 
