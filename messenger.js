@@ -1,10 +1,15 @@
 "use strict";
 
-const
+const async = require('async'),
     crypto = require('crypto'),
     err = require('debug')('error'),
     debug = require('debug')('messenger'),
     request = require('request');
+
+const ANALYTICS_LEVEL_NONE = 99;
+const ANALYTICS_LEVEL_CRITICAL = 2;
+const ANALYTICS_LEVEL_VERBOSE = 1;
+
 
 function Messenger(config) {
     const url = (process.env.MESSENGER_URL) ?
@@ -31,6 +36,10 @@ function Messenger(config) {
         (process.env.MESSENGER_PAGE_ID) :
         config.pageId;
 
+    const analyticsLogLevel = (process.env.MESSENGER_ANALYTICS_LOG_LEVEL) ?
+        (Number.parseInt(process.env.MESSENGER_ANALYTICS_LOG_LEVEL)) :
+        config.analyticsLogLevel || ANALYTICS_LEVEL_NONE;
+
     const httpProxy = (process.env.HTTP_PROXY) ?
         (process.env.HTTP_PROXY) :
         config.httpProxy;
@@ -49,7 +58,8 @@ function Messenger(config) {
         pageAccessToken: pageAccessToken,
         httpProxy: httpProxy,
         urlPrefix: url,
-        analyticsUrl: 'https://graph.facebook.com/' + appId + '/activities',
+        activitiesUrl: 'https://graph.facebook.com/' + appId + '/activities',
+        analyticsLogLevel: analyticsLogLevel,
         pageId: pageId,
         appId: appId
     };
@@ -303,23 +313,49 @@ Messenger.prototype.buildAnalyticsEvent = function (eventName, value, currency) 
     return ret;
 };
 
-Messenger.prototype.analyticsEvent = function (recipientId, event, callback) {
+Messenger.prototype.canLogAnalyticsEvent = function (level, callback) {
+    callback(null, (level == ANALYTICS_LEVEL_CRITICAL ||
+        level == ANALYTICS_LEVEL_NONE ||
+        level == ANALYTICS_LEVEL_VERBOSE) &&
+        level >= this.conf.analyticsLogLevel);
+};
+
+Messenger.prototype.sendActivity = function (payload, callback) {
+    debug('Sending activity with payload', payload);
     request.post({
-        url: this.conf.analyticsUrl,
-        form: {
-            event: 'CUSTOM_APP_EVENTS',
-            custom_events: JSON.stringify([event]),
-            advertiser_tracking_enabled: 0,
-            application_tracking_enabled: 0,
-            extinfo: JSON.stringify(['mb1']),
-            page_id: this.conf.pageId,
-            page_scoped_user_id: recipientId
-        }
-    }, function (error, response, body) {
+        url: this.conf.activitiesUrl,
+        form: payload
+    }, callback);
+};
+
+Messenger.prototype.analyticsEvent = function (level, recipientId, eventBuilder, callback) {
+    var ptr = this;
+    async.waterfall([
+        function (callback) {
+            ptr.canLogAnalyticsEvent(level, callback);
+        },
+        function (status, callback) {
+            if (status) {
+                ptr.sendActivity({
+                    event: 'CUSTOM_APP_EVENTS',
+                    custom_events: JSON.stringify([eventBuilder()]),
+                    advertiser_tracking_enabled: 0,
+                    application_tracking_enabled: 0,
+                    extinfo: JSON.stringify(['mb1']),
+                    page_id: ptr.conf.pageId,
+                    page_scoped_user_id: recipientId
+                }, callback);
+            } else {
+                callback({ skip: true }, null);
+            }
+        },
+    ], function (error, response, body) {
         if (!error && response.statusCode == 200) {
             if (callback) {
                 callback(null, body);
             }
+        } else if (error && error.skip) {
+            callback(null, error);
         } else {
             var args = ["Failed calling analyticsEvent"];
             if (error) {
@@ -700,3 +736,6 @@ Messenger.prototype.parsePostback = function (payload) {
 };
 
 module.exports.Messenger = Messenger;
+module.exports.ANALYTICS_LEVEL_NONE = 99;
+module.exports.ANALYTICS_LEVEL_CRITICAL = 2;
+module.exports.ANALYTICS_LEVEL_VERBOSE = 1;
