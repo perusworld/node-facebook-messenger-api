@@ -1,6 +1,7 @@
 "use strict";
 
 const async = require('async'),
+    merge = require('merge'),
     crypto = require('crypto'),
     err = require('debug')('error'),
     debug = require('debug')('messenger'),
@@ -300,17 +301,10 @@ Messenger.prototype.clearThreadSettings = function (callback) {
     });
 };
 
-Messenger.prototype.buildAnalyticsEvent = function (eventName, value, currency) {
-    var ret = {
+Messenger.prototype.buildAnalyticsEvent = function (eventName, opts) {
+    return merge({
         _eventName: eventName
-    };
-    if (value) {
-        ret._valueToSum = value;
-    }
-    if (currency) {
-        ret.fb_currency = currency;
-    }
-    return ret;
+    }, opts);
 };
 
 Messenger.prototype.canLogAnalyticsEvent = function (level, callback) {
