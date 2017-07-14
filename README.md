@@ -154,15 +154,21 @@ if the event was skipped due lower log levels
   messenger.analyticsEvent(messengerapi.ANALYTICS_LEVEL_VERBOSE, event.sender.id, () => {
     return messenger.buildAnalyticsEvent("fb_mobile_verbose_event");
   }, (err, resp) => {
-    //Handle
+    messenger.sendTextMessage(event.sender.id, JSON.stringify(err ? err : resp));
   });
 ```
 
  - Standard Purchase Event
 ```javascript
   messenger.analyticsEvent(messengerapi.ANALYTICS_LEVEL_CRITICAL, event.sender.id, () => {
-    return messenger.buildAnalyticsEvent("fb_mobile_purchase", 9.99, 'USD');
+    return messenger.buildAnalyticsEvent("fb_mobile_purchase", { _valueToSum: 9.99, fb_currency: 'USD' });
   }, (err, resp) => {
-    //Handle
+    messenger.sendTextMessage(event.sender.id, JSON.stringify(err ? err : resp));
+  });
+```
+ - Standard Add Cart Event Using quickAnalytics
+```javascript
+  messenger.quickAnalytics(messengerapi.ANALYTICS_LEVEL_CRITICAL, event.sender.id, "fb_mobile_add_to_cart", {
+    fb_content_type: 'blah blah blah', fb_content_id: '123456789', _valueToSum: 9.99, fb_currency: 'USD'
   });
 ```
