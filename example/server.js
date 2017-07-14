@@ -37,9 +37,17 @@ var webhookHandler = require('../node-facebook-messenger-api').webhookHandler()(
           break;
         case 'anusd':
           messenger.analyticsEvent(messengerapi.ANALYTICS_LEVEL_CRITICAL, event.sender.id, () => {
-            return messenger.buildAnalyticsEvent("fb_mobile_purchase", 9.99, 'USD');
+            return messenger.buildAnalyticsEvent("fb_mobile_purchase", { _valueToSum: 9.99, fb_currency: 'USD' });
           }, (err, resp) => {
             messenger.sendTextMessage(event.sender.id, JSON.stringify(err ? err : resp));
+          });
+          break;
+        case 'anquick':
+          messenger.quickAnalytics(messengerapi.ANALYTICS_LEVEL_CRITICAL, event.sender.id, "quick_analytics");
+          break;
+        case 'anitem':
+          messenger.quickAnalytics(messengerapi.ANALYTICS_LEVEL_CRITICAL, event.sender.id, "fb_mobile_add_to_cart", {
+            fb_content_type: 'blah blah blah', fb_content_id: '123456789', _valueToSum: 9.99, fb_currency: 'USD'
           });
           break;
         default:
