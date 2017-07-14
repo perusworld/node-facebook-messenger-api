@@ -1,6 +1,6 @@
 {
   "name": "node-facebook-messenger-api",
-  "version": "3.0.0",
+  "version": "4.0.0",
   "description": "Simple Node.js Facebook Messenger API",
   "main": "node-facebook-messenger-api.js",
   "scripts": {
@@ -25,6 +25,7 @@
   "dependencies": {
     "async": "^2.4.0",
     "debug": "^2.6.6",
+    "merge": "^1.2.0",
     "request": "^2.81.0"
   },
   "devDependencies": {
