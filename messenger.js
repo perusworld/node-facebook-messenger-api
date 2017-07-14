@@ -376,7 +376,7 @@ Messenger.prototype.quickAnalytics = function (level, recipientId, eventName, op
         return ptr.buildAnalyticsEvent(eventName, opts);
     }, (error, resp) => {
         if (error) {
-            err("Failed calling analytics for ", eventName, err);
+            err("Failed calling analytics for ", eventName, error);
         }
     });
 };
