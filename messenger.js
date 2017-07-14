@@ -370,6 +370,17 @@ Messenger.prototype.analyticsEvent = function (level, recipientId, eventBuilder,
     });
 };
 
+Messenger.prototype.quickAnalytics = function (level, recipientId, eventName, opts) {
+    let ptr = this;
+    ptr.analyticsEvent(level, recipientId, () => {
+        return ptr.buildAnalyticsEvent(eventName, opts);
+    }, (error, resp) => {
+        if (error) {
+            err("Failed calling analytics for ", eventName, err);
+        }
+    });
+};
+
 Messenger.prototype.sendImageMessage = function (recipientId, payload) {
     var messageData = {
         recipient: {
