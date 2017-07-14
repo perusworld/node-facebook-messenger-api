@@ -131,3 +131,27 @@ test('check unknown log', (done) => {
   });
 });
 
+test('check error', (done) => {
+  var messenger = getMessenger(messengerapi.ANALYTICS_LEVEL_VERBOSE);
+  messenger.sendActivity = (payload, callback) => {
+    callback({ error: true }, { resp: true, statusCode: 201 }, "{\"success\":false}");
+  };
+  messenger.analyticsEvent(messengerapi.ANALYTICS_LEVEL_VERBOSE, 'blah', () => {
+    return {
+      _eventName: "won't be called"
+    };
+  }, (err, resp) => {
+    expect(err).not.toBeNull();
+    expect(err[1].error).toBeTruthy();
+    expect(resp).toBeNull();
+    done();
+  });
+});
+
+test('check error quickAnalytics', () => {
+  var messenger = getMessenger(messengerapi.ANALYTICS_LEVEL_VERBOSE);
+  messenger.sendActivity = (payload, callback) => {
+    callback({ error: true }, { resp: true, statusCode: 201 }, "{\"success\":false}");
+  };
+  messenger.quickAnalytics(messengerapi.ANALYTICS_LEVEL_VERBOSE, 'blah', "won't be called");
+});
