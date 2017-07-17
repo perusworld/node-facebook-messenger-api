@@ -316,10 +316,11 @@ Messenger.prototype.canLogAnalyticsEvent = function (level, callback) {
 
 Messenger.prototype.sendActivity = function (payload, callback) {
     debug('Sending activity with payload', payload);
-    request.post({
-        url: this.conf.activitiesUrl,
+    request(this.updateReq({
+        uri: this.conf.activitiesUrl,
+        method: 'POST',
         form: payload
-    }, callback);
+    }), callback);
 };
 
 Messenger.prototype.analyticsEvent = function (level, recipientId, eventBuilder, callback) {
