@@ -172,3 +172,130 @@ if the event was skipped due lower log levels
     fb_content_type: 'blah blah blah', fb_content_id: '123456789', _valueToSum: 9.99, fb_currency: 'USD'
   });
 ```
+
+## Write a facebook messenger bot and host it on heroku ##
+Follow the steps mentioned below to quickly deploy an echo facebook bot on heroku. This assumes that you have setup your [heroku cli](https://devcenter.heroku.com/articles/heroku-cli).
+
+1. Code to handle the messages that the users send and to reply back
+
+ - Create a nodejs app and add the required dependencies.
+```bash
+mkdir myfb-bot
+cd myfb-bot
+npm init -y
+npm install express body-parser github:perusworld/node-facebook-messenger-api --save
+```
+ - Add the code to handle messages from the users. Create a file named server.js and add the following as its content
+```javascript
+const
+  express = require('express');
+
+var ignores = ['/some-url/to-ignore'];
+var verifySignature = true;
+
+var messengerapi = require('node-facebook-messenger-api').messenger();
+var messenger = new messengerapi.Messenger({});
+var webhookHandler = require('node-facebook-messenger-api').webhookHandler()(messenger, {
+  receivedAuthentication : function(event) {
+    console.log('receivedAuthentication', event);
+  },
+  handleMessage : function(event) {
+    console.log('handleMessage', event);
+    messenger.sendTextMessage(event.sender.id, JSON.stringify(event));
+  },
+  receivedDeliveryConfirmation : function(event) {
+    console.log('receivedDeliveryConfirmation', event);
+  },
+  receivedPostback : function(event) {
+    console.log('receivedPostback', event);
+  },
+  receivedMessageRead : function(event) {
+    console.log('receivedMessageRead', event);
+  },
+  doLinking : function(event) {
+    console.log('doLinking', event);
+  },
+  doUnlinking : function(event) {
+    console.log('doUnlinking', event);
+  }
+},verifySignature, ignores, express.Router());
+
+var app = express();
+app.set('port', process.env.PORT || 3000);
+app.use(express.static('public'));
+
+app.use('/fb', webhookHandler);
+app.listen(app.get('port'), function () {
+  console.log('Node app is running in http mode on port', app.get('port'));
+});
+```
+ - Edit the package.json file and add the following to the scripts section of the json block
+ ```json
+    "start": "node server.js",
+ ```
+ it should look something like this
+ ```json
+  "scripts": {
+    "start": "node server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+ ```
+2. A facebook page that users can find and start the conversation.
+
+ - Create a facebook page by going to the following url (https://www.facebook.com/pages/create/), follow the steps mentioned there.
+ - Once you have created the facebook page, go to the "About" section of the newly created page and copy the page id (a 16 digit number)
+![Create facebook page](screenshots/create-page.png)
+
+3. A facebook app that links the above two
+
+ - Create a facebook app by going to the following url (https://developers.facebook.com/apps/).
+ - Once you have created the facebook app, go to its dashboard page and copy the app id and the app secret values.
+![Create facebook app](screenshots/create-app.png)
+ - Click on add product and choose messenger setup
+![Add product - Messenger](screenshots/setup-messenger.png)
+ - From the token generation section, select the page that you just created above from the drop down and copy the generated page access token value
+![Page Access Token](screenshots/page-access-token.png)
+
+4. Setup and deploy to heroku
+
+ -  Now we have enough information to deploy to heroku. If you haven't initialized git for this project do so now by running the following command from the myfb-bot folder
+ ```bash
+git init
+echo node_modules  >> .gitignore
+git add .
+git commit -m 'initial'
+ ```
+ -  Run the following to create a heroku app
+ ```bash
+heroku create
+ ```
+ - Once the app has been created copy the first of the two urls outputted.
+![Heroku Create](screenshots/heroku-create.png)
+
+ - Run the following commands, replacing the placeholders with the values you have copied
+ ```bash
+ heroku config:set MESSENGER_APP_ID="--your-app-id--"
+ heroku config:set MESSENGER_PAGE_ID="--your-page-id--"
+ heroku config:set MESSENGER_APP_SECRET="--your-app-secret--"
+ heroku config:set MESSENGER_PAGE_ACCESS_TOKEN="--your-page-access-token--"
+ heroku config:set MESSENGER_VALIDATION_TOKEN="--your-validation-token-some-string-that-you-should-keep-secret--"
+ ```
+
+ - Push the code to heroku.
+ ```bash
+git push heroku master
+ ```
+
+- Once the deployment completes successfully, lets go back to facebook and finish the setup process. Got to https://developers.facebook.com/apps and select the app that you have just created and select Messenger and then Setup Webhooks
+![Setup Webhooks](screenshots/setup-webhooks.png)
+ - On the config page use the first url you had copied above suffixed with /fb/webhook
+ - Use the value you had used for the MESSENGER_PAGE_ACCESS_TOKEN config above as the verify token
+ - select messages, messaging_postbacks and messagin_account_linking and click verify and save
+![Webhook Config](screenshots/webhook-config.png)
+ - After successful verification, webhook config should be complete and now we need to subscribe the app to the facebook page for event, select the page that you just created from the dropdown and click subscribe
+![Subscribe Page](screenshots/subscribe-page.png)
+![Confirm Subscribe Page](screenshots/confirm-subscribe-page.png)
+![Page Subscribed](screenshots/page-subscribed.png)
+ - Now everything is setup and we just need to test it. Go to the facebook page that you just created, go to the about page, click on send message. It should open a chat window, type hi or any message and it should echo back the raw message
+![Send Message Hi](screenshots/send-message-hi.png)
+ - Now you can modify the necessary methods in server.js to handle your use-case.
