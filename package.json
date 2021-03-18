@@ -24,7 +24,7 @@
   "homepage": "https://github.com/perusworld/node-facebook-messenger-api",
   "dependencies": {
     "async": "^2.4.0",
-    "debug": "^2.6.6",
+    "debug": "^2.6.9",
     "merge": "^1.2.0",
     "request": "^2.81.0"
   },
